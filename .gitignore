@@ -59,6 +59,3 @@ mvnw
 mvnw.cmd
 mvnwDebug
 mvnwDebug.cmd
-
-# Configuración sensible (como .env en Node)
-src/main/resources/application.properties
