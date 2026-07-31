@@ -53,3 +53,12 @@ out/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Maven Wrapper
+mvnw
+mvnw.cmd
+mvnwDebug
+mvnwDebug.cmd
+
+# Configuración sensible (como .env en Node)
+src/main/resources/application.properties
