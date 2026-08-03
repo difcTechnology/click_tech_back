@@ -66,4 +66,13 @@ public class ProductoService {
         producto.setActivo(0);
         productoRepository.save(producto);
     }
+
+    public boolean hayStockProducto(Integer idProducto, Integer cantidad){
+        Producto producto = obtenerPorId(idProducto);
+        boolean hayStock = Boolean.FALSE;
+        if(producto.getStock() > cantidad){
+            hayStock = Boolean.TRUE;
+        }
+        return hayStock;
+    }
 }
