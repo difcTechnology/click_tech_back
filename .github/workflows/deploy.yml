@@ -1,0 +1,145 @@
+name: Build and deploy to ECS Express
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ecs-deploy-${{ github.repository }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
+  ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  CONTAINER_PORT: ${{ secrets.CONTAINER_PORT }}
+
+  ECS_EXECUTION_ROLE: ecsTaskExecutionRole
+  ECS_INFRASTRUCTURE_ROLE: ecsInfrastructureRoleForExpressServices
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Verificar variables
+        shell: bash
+        run: |
+          if [ -z "$AWS_REGION" ]; then
+            echo "Falta configurar el secreto AWS_REGION"
+            exit 1
+          fi
+
+          if [ -z "$ECS_CLUSTER" ]; then
+            echo "Falta configurar el secreto ECS_CLUSTER"
+            exit 1
+          fi
+
+          if [ -z "$ECS_SERVICE" ]; then
+            echo "Falta configurar el secreto ECS_SERVICE"
+            exit 1
+          fi
+
+          if [ -z "$ECR_REPOSITORY" ]; then
+            echo "Falta configurar el secreto ECR_REPOSITORY"
+            exit 1
+          fi
+
+          if [ -z "$CONTAINER_PORT" ]; then
+            echo "Falta configurar el secreto CONTAINER_PORT"
+            exit 1
+          fi
+
+      - name: Configurar credenciales AWS
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Obtener número de cuenta AWS
+        id: aws-account
+        shell: bash
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity \
+            --query Account \
+            --output text)
+
+          echo "id=$ACCOUNT_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Iniciar sesión en Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Construir y publicar imagen
+        id: build-image
+        shell: bash
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          LATEST_URI="$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+
+          echo "Construyendo imagen: $IMAGE_URI"
+
+          docker build \
+            --platform linux/amd64 \
+            --pull \
+            -t "$IMAGE_URI" \
+            -t "$LATEST_URI" \
+            .
+
+          docker push "$IMAGE_URI"
+          docker push "$LATEST_URI"
+
+          echo "image=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+
+      - name: Desplegar en ECS Express
+        uses: aws-actions/amazon-ecs-deploy-express-service@v1
+        with:
+          service-name: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          image: ${{ steps.build-image.outputs.image }}
+
+          execution-role-arn: arn:aws:iam::${{ steps.aws-account.outputs.id }}:role/${{ env.ECS_EXECUTION_ROLE }}
+          infrastructure-role-arn: arn:aws:iam::${{ steps.aws-account.outputs.id }}:role/${{ env.ECS_INFRASTRUCTURE_ROLE }}
+
+          container-port: ${{ env.CONTAINER_PORT }}
+
+          environment-variables: |
+            [
+              {
+                "name": "DB_URL",
+                "value": "${{ secrets.DB_URL }}"
+              },
+              {
+                "name": "DB_USERNAME",
+                "value": "${{ secrets.DB_USERNAME }}"
+              },
+              {
+                "name": "DB_PASSWORD",
+                "value": "${{ secrets.DB_PASSWORD }}"
+              }
+            ]
+
+      - name: Mostrar información del despliegue
+        if: success()
+        shell: bash
+        run: |
+          echo "Despliegue completado correctamente"
+          echo "Cluster: $ECS_CLUSTER"
+          echo "Servicio: $ECS_SERVICE"
+          echo "Repositorio ECR: $ECR_REPOSITORY"
+          echo "Imagen: ${{ steps.build-image.outputs.image }}"
