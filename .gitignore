@@ -54,8 +54,3 @@ out/
 .DS_Store
 Thumbs.db
 
-# Maven Wrapper
-mvnw
-mvnw.cmd
-mvnwDebug
-mvnwDebug.cmd
