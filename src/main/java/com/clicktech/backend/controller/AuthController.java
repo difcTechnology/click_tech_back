@@ -44,19 +44,6 @@ public class AuthController {
                     .body(ApiResponse.error(e.getMessage()));
         }
     }
-
-    @PostMapping("/register-admin")
-    public ResponseEntity<ApiResponse<Void>> registerAdmin(@Valid @RequestBody RegisterRequest request) {
-        try {
-            authService.registerAdmin(request);
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(ApiResponse.ok("Administrador registrado exitosamente"));
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error(e.getMessage()));
-        }
-    }
 }
+
 
