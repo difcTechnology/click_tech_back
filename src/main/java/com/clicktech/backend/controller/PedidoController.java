@@ -46,6 +46,12 @@ public class PedidoController {
         }
     }
 
+    @GetMapping("/usuario/{idUsuario}")
+    public ResponseEntity<ApiResponse<List<PedidoResponse>>> obtenerPorUsuario(@PathVariable Integer idUsuario) {
+        List<PedidoResponse> pedidos = pedidoService.obtenerPorUsuario(idUsuario);
+        return ResponseEntity.ok(ApiResponse.ok("Pedidos del usuario obtenidos exitosamente", pedidos));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<PedidoResponse>> actualizar(
             @PathVariable Integer id,
@@ -59,3 +65,4 @@ public class PedidoController {
     }
 
 }
+

@@ -69,10 +69,6 @@ public class ProductoService {
 
     public boolean hayStockProducto(Integer idProducto, Integer cantidad){
         Producto producto = obtenerPorId(idProducto);
-        boolean hayStock = Boolean.FALSE;
-        if(producto.getStock() > cantidad){
-            hayStock = Boolean.TRUE;
-        }
-        return hayStock;
+        return producto.getStock() >= cantidad;
     }
 }

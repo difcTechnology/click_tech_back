@@ -186,4 +186,10 @@ public class PedidoService {
         detallePedido.setSubtotal(BigDecimal.valueOf(subtotal));
     }
 
+    public List<PedidoResponse> obtenerPorUsuario(Integer idUsuario) {
+        List<Pedido> pedidos = pedidoRepository.findByUsuarioIdUsuarioOrderByFechaDesc(idUsuario);
+        return pedidos.stream().map(PedidoResponse::fromEntity).toList();
+    }
+
 }
+
