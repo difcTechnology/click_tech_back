@@ -6,21 +6,25 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        MappingJackson2HttpMessageConverter jacksonConverter = new MappingJackson2HttpMessageConverter();
-        List<MediaType> mediaTypes = new ArrayList<>();
-        mediaTypes.add(MediaType.APPLICATION_JSON);
-        mediaTypes.add(MediaType.valueOf("application/json;charset=UTF-8"));
-        mediaTypes.add(MediaType.TEXT_PLAIN);
-        mediaTypes.add(MediaType.ALL);
-        jacksonConverter.setSupportedMediaTypes(mediaTypes);
-        converters.add(0, jacksonConverter);
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        for (HttpMessageConverter<?> converter : converters) {
+            if (converter instanceof MappingJackson2HttpMessageConverter jacksonConverter) {
+                List<MediaType> supportedMediaTypes = new ArrayList<>(jacksonConverter.getSupportedMediaTypes());
+                supportedMediaTypes.add(new MediaType("application", "json", StandardCharsets.UTF_8));
+                supportedMediaTypes.add(new MediaType("application", "json", Collections.singletonMap("charset", "*")));
+                supportedMediaTypes.add(MediaType.valueOf("application/json;charset=UTF-8"));
+                supportedMediaTypes.add(MediaType.ALL);
+                jacksonConverter.setSupportedMediaTypes(supportedMediaTypes);
+            }
+        }
     }
 }

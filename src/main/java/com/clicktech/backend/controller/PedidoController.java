@@ -8,6 +8,7 @@ import com.clicktech.backend.service.PedidoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class PedidoController {
         return ResponseEntity.ok(ApiResponse.ok("Pedidos obtenidos exitosamente", pedidos));
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.ALL_VALUE)
     public ResponseEntity<ApiResponse<PedidoResponse>> crear(@Valid @RequestBody PedidoRequest pedidoRequest) {
         try {
             PedidoResponse nuevoPedido = pedidoService.crear(pedidoRequest);
@@ -47,7 +48,7 @@ public class PedidoController {
         return ResponseEntity.ok(ApiResponse.ok("Pedidos del usuario obtenidos exitosamente", pedidos));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<ApiResponse<PedidoResponse>> actualizar(
             @PathVariable Integer id,
             @Valid @RequestBody PedidoRequest request) {
