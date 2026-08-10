@@ -3,6 +3,7 @@ package com.clicktech.backend.exception;
 import com.clicktech.backend.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -12,7 +13,6 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(
@@ -27,6 +27,13 @@ public class GlobalExceptionHandler {
                 new ApiResponse<>(false, "Error de validación", errores);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("Formato de envío no soportado: " + ex.getMessage()));
     }
 
     @ExceptionHandler(RuntimeException.class)
