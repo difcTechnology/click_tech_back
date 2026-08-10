@@ -4,6 +4,7 @@ import com.clicktech.backend.entity.DetallePedido;
 import com.clicktech.backend.entity.Pedido;
 import com.clicktech.backend.entity.Usuario;
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -32,7 +33,7 @@ public class PedidoRequest {
     @JsonProperty("detalles")
     @JsonAlias({"detallePedidoRequestList", "detallesPedido"})
     @NotEmpty(message = "Debe ingresar almenos 1 detalle al pedido")
-    private List<DetallePedidoRequest> detallePedidoRequestList = new ArrayList<>();
+    private List<DetallePedidoRequest> detalles = new ArrayList<>();
 
     @NotNull(message = "El idUsuario es obligatorio")
     private Integer idUsuario;
@@ -48,20 +49,21 @@ public class PedidoRequest {
         this.idUsuario = idUsuario;
     }
 
-    public List<DetallePedidoRequest> getDetallePedidoRequestList() {
-        return detallePedidoRequestList;
-    }
-
-    public void setDetallePedidoRequestList(List<DetallePedidoRequest> detallePedidoRequestList) {
-        this.detallePedidoRequestList = detallePedidoRequestList;
-    }
-
     public List<DetallePedidoRequest> getDetalles() {
-        return detallePedidoRequestList;
+        return detalles;
     }
 
     public void setDetalles(List<DetallePedidoRequest> detalles) {
-        this.detallePedidoRequestList = detalles;
+        this.detalles = detalles;
+    }
+
+    @JsonIgnore
+    public List<DetallePedidoRequest> getDetallePedidoRequestList() {
+        return detalles;
+    }
+
+    public void setDetallePedidoRequestList(List<DetallePedidoRequest> detalles) {
+        this.detalles = detalles;
     }
 
     public String getDireccion() {
@@ -119,8 +121,8 @@ public class PedidoRequest {
         Pedido pedido = new Pedido(this.direccion, fechaPedido, this.metodoPago, this.total, usuario);
         List<DetallePedido> detallePedidoList = new ArrayList<>();
 
-        if (this.detallePedidoRequestList != null) {
-            for (DetallePedidoRequest detallePedidoRequest : this.detallePedidoRequestList) {
+        if (this.detalles != null) {
+            for (DetallePedidoRequest detallePedidoRequest : this.detalles) {
                 DetallePedido detallePedido = detallePedidoRequest.toEntity();
                 detallePedido.setPedido(pedido);
                 detallePedidoList.add(detallePedido);

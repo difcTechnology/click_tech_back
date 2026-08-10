@@ -2,6 +2,7 @@ package com.clicktech.backend.dto;
 
 import com.clicktech.backend.entity.DetallePedido;
 import com.clicktech.backend.entity.Producto;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
@@ -9,16 +10,23 @@ import java.math.BigDecimal;
 public class DetallePedidoRequest {
 
     private Integer id;
+
     @NotNull(message = "La cantidad en el detalle es obligatoria")
     private Integer cantidad;
+
     @NotNull(message = "El precio unitario en el detalle es obligatorio")
     private BigDecimal precioUnitario;
+
     @NotNull(message = "El subtotal en el detalle es obligatorio")
     private BigDecimal subtotal;
+
+    @JsonAlias({"idProducto", "producto_id"})
     @NotNull(message = "El productoId en el detalle es obligatorio")
     private Integer productoId;
 
-    public DetallePedidoRequest(Integer cantidad, Integer id,BigDecimal precioUnitario, BigDecimal subtotal, Integer productoId) {
+    public DetallePedidoRequest() {}
+
+    public DetallePedidoRequest(Integer cantidad, Integer id, BigDecimal precioUnitario, BigDecimal subtotal, Integer productoId) {
         this.cantidad = cantidad;
         this.id = id;
         this.precioUnitario = precioUnitario;
@@ -58,6 +66,14 @@ public class DetallePedidoRequest {
         this.productoId = productoId;
     }
 
+    public Integer getIdProducto() {
+        return productoId;
+    }
+
+    public void setIdProducto(Integer idProducto) {
+        this.productoId = idProducto;
+    }
+
     public BigDecimal getSubtotal() {
         return subtotal;
     }
@@ -67,7 +83,7 @@ public class DetallePedidoRequest {
     }
 
     public DetallePedido toEntity() {
-        DetallePedido detallePedido = new DetallePedido(this.cantidad,this.precioUnitario,this.subtotal);
+        DetallePedido detallePedido = new DetallePedido(this.cantidad, this.precioUnitario, this.subtotal);
         Producto producto = new Producto();
         producto.setIdProducto(this.productoId);
         detallePedido.setProducto(producto);
