@@ -25,7 +25,7 @@ public class Producto {
     @Column(name = "stock", nullable = false)
     private Integer stock = 0;
 
-    @Column(name = "imagen", length = 500)
+    @Column(name = "imagen", columnDefinition = "LONGTEXT")
     private String imagen;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -38,7 +38,6 @@ public class Producto {
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    // Constructors
     public Producto() {}
 
     public Producto(String nombre, String descripcion, BigDecimal precio, Integer stock, String imagen, Categoria categoria) {
@@ -50,7 +49,6 @@ public class Producto {
         this.categoria = categoria;
     }
 
-    // Getters y Setters
     public Integer getIdProducto() {
         return idProducto;
     }
