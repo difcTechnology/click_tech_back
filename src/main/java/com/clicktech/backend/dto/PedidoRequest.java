@@ -3,6 +3,8 @@ package com.clicktech.backend.dto;
 import com.clicktech.backend.entity.DetallePedido;
 import com.clicktech.backend.entity.Pedido;
 import com.clicktech.backend.entity.Usuario;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -15,19 +17,27 @@ import java.util.List;
 public class PedidoRequest {
 
     private Integer id;
+
     @NotBlank(message = "La dirección es obligatoria")
     private String direccion;
+
     @NotNull(message = "El total es obligatorio")
     private BigDecimal total;
+
     @NotBlank(message = "El método de pago es obligatorio")
     private String metodoPago;
-    @NotNull(message = "La fecha es obligatoria")
+
     private LocalDateTime fecha;
+
+    @JsonProperty("detalles")
+    @JsonAlias({"detallePedidoRequestList", "detallesPedido"})
     @NotEmpty(message = "Debe ingresar almenos 1 detalle al pedido")
     private List<DetallePedidoRequest> detallePedidoRequestList = new ArrayList<>();
+
     @NotNull(message = "El idUsuario es obligatorio")
     private Integer idUsuario;
 
+    public PedidoRequest() {}
 
     public PedidoRequest(String direccion, LocalDateTime fecha, Integer id, String metodoPago, BigDecimal total, Integer idUsuario) {
         this.direccion = direccion;
@@ -44,6 +54,14 @@ public class PedidoRequest {
 
     public void setDetallePedidoRequestList(List<DetallePedidoRequest> detallePedidoRequestList) {
         this.detallePedidoRequestList = detallePedidoRequestList;
+    }
+
+    public List<DetallePedidoRequest> getDetalles() {
+        return detallePedidoRequestList;
+    }
+
+    public void setDetalles(List<DetallePedidoRequest> detalles) {
+        this.detallePedidoRequestList = detalles;
     }
 
     public String getDireccion() {
@@ -97,13 +115,16 @@ public class PedidoRequest {
     public Pedido toEntity() {
         Usuario usuario = new Usuario();
         usuario.setIdUsuario(this.getIdUsuario());
-        Pedido pedido = new Pedido(this.direccion,LocalDateTime.now(),this.metodoPago,this.total,usuario);
+        LocalDateTime fechaPedido = this.getFecha() != null ? this.getFecha() : LocalDateTime.now();
+        Pedido pedido = new Pedido(this.direccion, fechaPedido, this.metodoPago, this.total, usuario);
         List<DetallePedido> detallePedidoList = new ArrayList<>();
 
-        for(DetallePedidoRequest detallePedidoRequest : detallePedidoRequestList){
-            DetallePedido detallePedido = detallePedidoRequest.toEntity();
-            detallePedido.setPedido(pedido);
-            detallePedidoList.add(detallePedido);
+        if (this.detallePedidoRequestList != null) {
+            for (DetallePedidoRequest detallePedidoRequest : this.detallePedidoRequestList) {
+                DetallePedido detallePedido = detallePedidoRequest.toEntity();
+                detallePedido.setPedido(pedido);
+                detallePedidoList.add(detallePedido);
+            }
         }
         pedido.setDetalles(detallePedidoList);
         return pedido;
