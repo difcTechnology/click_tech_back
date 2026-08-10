@@ -3,23 +3,20 @@ package com.clicktech.backend.controller;
 import com.clicktech.backend.dto.ApiResponse;
 import com.clicktech.backend.dto.PedidoRequest;
 import com.clicktech.backend.dto.PedidoResponse;
-import com.clicktech.backend.dto.ProductoRequest;
 import com.clicktech.backend.entity.Pedido;
-import com.clicktech.backend.entity.Producto;
 import com.clicktech.backend.service.PedidoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/pedidos")
 public class PedidoController {
-
 
     private final PedidoService pedidoService;
 
@@ -28,15 +25,14 @@ public class PedidoController {
         this.pedidoService = pedidoService;
     }
 
-
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Pedido>>> getAllPedidos(){
+    public ResponseEntity<ApiResponse<List<Pedido>>> getAllPedidos() {
         List<Pedido> pedidos = pedidoService.obtenerTodos();
         return ResponseEntity.ok(ApiResponse.ok("Pedidos obtenidos exitosamente", pedidos));
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<PedidoResponse>> crear(@Valid @RequestBody PedidoRequest pedidoRequest){
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, "application/json;charset=UTF-8"})
+    public ResponseEntity<ApiResponse<PedidoResponse>> crear(@Valid @RequestBody PedidoRequest pedidoRequest) {
         try {
             PedidoResponse nuevoPedido = pedidoService.crear(pedidoRequest);
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -52,7 +48,7 @@ public class PedidoController {
         return ResponseEntity.ok(ApiResponse.ok("Pedidos del usuario obtenidos exitosamente", pedidos));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON_VALUE, "application/json;charset=UTF-8"})
     public ResponseEntity<ApiResponse<PedidoResponse>> actualizar(
             @PathVariable Integer id,
             @Valid @RequestBody PedidoRequest request) {
@@ -63,6 +59,4 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
         }
     }
-
 }
-
