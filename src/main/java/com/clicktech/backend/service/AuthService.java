@@ -55,4 +55,18 @@ public class AuthService {
         usuario.setRol(1);
         return usuarioRepository.save(usuario);
     }
+
+    public Usuario registerAdmin(RegisterRequest request) {
+        if (usuarioRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("El email ya está registrado");
+        }
+        Usuario usuario = new Usuario();
+        usuario.setNombre(request.getNombre());
+        usuario.setEmail(request.getEmail());
+        usuario.setTelefono(request.getTelefono());
+        usuario.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        usuario.setRol(0);
+        return usuarioRepository.save(usuario);
+    }
 }
+
