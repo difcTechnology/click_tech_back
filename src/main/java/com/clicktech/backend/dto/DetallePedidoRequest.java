@@ -21,7 +21,7 @@ public class DetallePedidoRequest {
     private BigDecimal subtotal;
 
     @JsonAlias({"idProducto", "producto_id"})
-    @NotNull(message = "El productoId en el detalle es obligatorio")
+    @NotNull(message = "El productoId en el detalle es obligatorio!")
     private Integer productoId;
 
     public DetallePedidoRequest() {}
