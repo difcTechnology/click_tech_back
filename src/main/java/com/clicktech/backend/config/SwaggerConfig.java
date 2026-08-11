@@ -19,14 +19,14 @@ public class SwaggerConfig {
                         .version("1.0")
                         .description("API Backend de ClickTech")
                 )
-                .addSecurityItem(new SecurityRequirement().addList("Bearer Token"))
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
-                        .addSecuritySchemes("Bearer Token",
+                        .addSecuritySchemes("bearerAuth",
                                 new SecurityScheme()
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
-                                        .description("Pega aquí el token JWT que obtienes del login")
+                                        .description("Pega aquí el token JWT obtenido en el login")
                         )
                 );
     }
