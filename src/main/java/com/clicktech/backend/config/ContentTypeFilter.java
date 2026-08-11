@@ -17,6 +17,12 @@ public class ContentTypeFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         if (request instanceof HttpServletRequest httpRequest) {
+            String uri = httpRequest.getRequestURI();
+            // Skip Swagger/OpenAPI endpoints
+            if (uri.startsWith("/v3/api-docs") || uri.startsWith("/swagger-ui")) {
+                chain.doFilter(request, response);
+                return;
+            }
             String contentType = httpRequest.getContentType();
             if (contentType != null && contentType.toLowerCase().contains("application/json")) {
                 HttpServletRequest wrappedRequest = new HttpServletRequestWrapper(httpRequest) {

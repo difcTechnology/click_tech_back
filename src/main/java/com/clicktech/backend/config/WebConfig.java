@@ -13,7 +13,7 @@ import java.util.List;
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         MappingJackson2HttpMessageConverter customJacksonConverter = new MappingJackson2HttpMessageConverter() {
             @Override
             public boolean canRead(Class<?> clazz, MediaType mediaType) {
