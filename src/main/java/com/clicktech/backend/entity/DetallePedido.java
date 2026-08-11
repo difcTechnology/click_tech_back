@@ -57,6 +57,7 @@ public class DetallePedido {
         this.id = id;
     }
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public Pedido getPedido() {
         return pedido;
     }

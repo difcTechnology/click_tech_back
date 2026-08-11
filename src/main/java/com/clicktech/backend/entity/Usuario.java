@@ -75,6 +75,7 @@ public class Usuario {
         this.telefono = telefono;
     }
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public String getPasswordHash() {
         return passwordHash;
     }
